@@ -5,6 +5,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -24,6 +25,7 @@ public class Controller implements Initializable
     private GraphicsContext layer,layerGrid, layerHover;
     private WritableImage wim;
 
+    private Color color;
 
 
     @FXML
@@ -32,16 +34,21 @@ public class Controller implements Initializable
     @FXML
     private GridPane gp;
 
+    @FXML
+    ColorPicker colorPicker;
+
     private double x, y;
 
     public void initialize(URL location, ResourceBundle resources)
     {
+        color = Color.BLACK;
+        colorPicker.setValue(color);
+
         layer = canvas.getGraphicsContext2D();
         layerGrid = canvasGrid.getGraphicsContext2D();
         layerHover = canvasHover.getGraphicsContext2D();
 
         wim = new WritableImage(1000, 1000);
-
 
         canvasHover.toFront();
 
@@ -60,14 +67,14 @@ public class Controller implements Initializable
                 y = ((e.getY() -25) / 50);
                 y = ((double)Math.round(y * 1) / 1) * 50;
 
-                layerHover.setFill(Color.GREEN);
+                layerHover.setFill(color);
                 layerHover.fillRect(x, y, 50, 50);
             }
         });
 
         canvasHover.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
             public void handle(MouseEvent e) {
-                layer.setFill(Color.GREEN);
+                layer.setFill(color);
                 layer.fillRect(x, y, 50, 50);
             }
         });
@@ -80,9 +87,7 @@ public class Controller implements Initializable
                 y = ((e.getY() -25) / 50);
                 y = ((double)Math.round(y * 1) / 1) * 50;
 
-                System.out.println("Draw at: " + x + " | " + y);
-
-                layer.setFill(Color.GREEN);
+                layer.setFill(color);
                 layer.fillRect(x, y, 50, 50);
             }
         });
@@ -114,6 +119,13 @@ public class Controller implements Initializable
            // TODO ??
         }
     }
+
+    @FXML
+    private void changeColor()
+    {
+       color = colorPicker.getValue();
+    }
+
 
     private void drawGrid()
     {

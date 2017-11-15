@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -36,9 +37,7 @@
                            </accelerator>
                        </MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                       <MenuItem mnemonicParsing="false" text="Exit">
-
-                       </MenuItem>
+                       <MenuItem mnemonicParsing="false" text="Exit" />
                    </items>
                </Menu>
                <Menu mnemonicParsing="false" text="Edit">
@@ -46,29 +45,26 @@
                        <MenuItem mnemonicParsing="false" text="Clear" />
                    </items>
                </Menu>
-               <Menu mnemonicParsing="false" text="Help">
-                   <items>
-                       <MenuItem mnemonicParsing="false" text="About" />
-                   </items>
+               <Menu mnemonicParsing="false">
+                   <graphic>
+                       <ColorPicker fx:id="colorPicker" onAction="#changeColor" />
+                   </graphic>
                </Menu>
            </menus>
        </MenuBar>
        <Canvas fx:id="canvas" height="1000.0" width="1000.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
            <GridPane.margin>
-               <Insets left="25.0" />
-               <Insets top="15.0" />
+               <Insets left="25.0" top="25.0" />
            </GridPane.margin>
        </Canvas>
        <Canvas fx:id="canvasGrid" height="1000.0" width="1000.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
            <GridPane.margin>
-               <Insets left="25.0" />
-               <Insets top="15.0" />
+               <Insets left="25.0" top="25.0" />
            </GridPane.margin>
        </Canvas>
        <Canvas fx:id="canvasHover" height="1000.0" width="1000.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
          <GridPane.margin>
-            <Insets left="25.0" />
-             <Insets top="15.0" />
+            <Insets left="25.0" top="25.0" />
          </GridPane.margin>
        </Canvas>
    </children>
