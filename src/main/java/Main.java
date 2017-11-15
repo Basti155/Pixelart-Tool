@@ -11,9 +11,8 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("views/main.fxml"));
         primaryStage.setTitle("Pixelart Tool");
-        Scene scene = new Scene(root, 1024, 1024);
+        Scene scene = new Scene(root, 750, 750);
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
         primaryStage.show();
     }
 }
