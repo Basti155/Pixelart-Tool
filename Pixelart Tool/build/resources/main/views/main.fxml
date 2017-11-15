@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane fx:id="gp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="9024.0" prefWidth="924.0" style="-fx-background-color: #fff;" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+       <MenuBar GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="TOP">
+           <menus>
+               <Menu mnemonicParsing="false" text="File">
+                   <items>
+                       <MenuItem mnemonicParsing="false" text="New">
+                           <accelerator>
+                               <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                           </accelerator>
+                       </MenuItem>
+                       <MenuItem fx:id="mnSave" mnemonicParsing="false" onAction="#saveImage" text="Save">
+                           <accelerator>
+                               <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                           </accelerator>
+                       </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                       <MenuItem mnemonicParsing="false" text="Exit">
+
+                       </MenuItem>
+                   </items>
+               </Menu>
+               <Menu mnemonicParsing="false" text="Edit">
+                   <items>
+                       <MenuItem mnemonicParsing="false" text="Clear" />
+                   </items>
+               </Menu>
+               <Menu mnemonicParsing="false" text="Help">
+                   <items>
+                       <MenuItem mnemonicParsing="false" text="About" />
+                   </items>
+               </Menu>
+           </menus>
+       </MenuBar>
+       <Canvas fx:id="canvas" height="1000.0" width="1000.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+           <GridPane.margin>
+               <Insets left="25.0" />
+               <Insets top="15.0" />
+           </GridPane.margin>
+       </Canvas>
+       <Canvas fx:id="canvasGrid" height="1000.0" width="1000.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+           <GridPane.margin>
+               <Insets left="25.0" />
+               <Insets top="15.0" />
+           </GridPane.margin>
+       </Canvas>
+       <Canvas fx:id="canvasHover" height="1000.0" width="1000.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets left="25.0" />
+             <Insets top="15.0" />
+         </GridPane.margin>
+       </Canvas>
+   </children>
+</GridPane>
