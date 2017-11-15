@@ -4,6 +4,7 @@
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
@@ -29,26 +30,15 @@
           <RowConstraints minHeight="30.0" prefHeight="35.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-             <Canvas fx:id="canvas" height="700.0" width="700.0" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
-                 <GridPane.margin>
-                     <Insets left="25.0" top="25.0" />
-                 </GridPane.margin>
-             </Canvas>
-             <Canvas fx:id="canvasHover" height="700.0" width="700.0" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
-               <GridPane.margin>
-                  <Insets left="25.0" top="25.0" />
-               </GridPane.margin>
-             </Canvas>
-             <Canvas fx:id="canvasGrid" height="700.0" width="700.0" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
-                 <GridPane.margin>
-                     <Insets left="25.0" top="25.0" />
-                 </GridPane.margin>
-             </Canvas>
+             <Canvas fx:id="canvasBackground" height="700.0" width="700.0" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
+             <Canvas fx:id="canvas" height="700.0" width="700.0" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
+             <Canvas fx:id="canvasHover" height="700.0" width="700.0" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
+             <Canvas fx:id="canvasGrid" height="700.0" width="700.0" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
          </children>
       </GridPane>
    </center>
    <top>
-       <MenuBar BorderPane.alignment="CENTER">
+       <MenuBar style="-fx-background-color: LIGHTGRAY;" BorderPane.alignment="CENTER">
            <menus>
                <Menu mnemonicParsing="false" text="File">
                    <items>
@@ -71,12 +61,12 @@
                        <MenuItem mnemonicParsing="false" text="Clear" />
                    </items>
                </Menu>
-               <Menu mnemonicParsing="false">
+               <Menu mnemonicParsing="false" style="-fx-background-color: LIGHTGRAY;">
                    <graphic>
-                       <ColorPicker fx:id="colorPicker" maxWidth="90.0" onAction="#changeColor" />
+                       <ColorPicker fx:id="colorPicker" maxWidth="120.0" onAction="#changeColor" />
                    </graphic>
                </Menu>
-               <Menu mnemonicParsing="false" text="">
+               <Menu mnemonicParsing="false" style="-fx-background-color: LIGHTGRAY;" text="">
                    <graphic>
                        <ChoiceBox fx:id="brush" maxWidth="90.0">
                            <items>
@@ -87,6 +77,11 @@
                                </FXCollections>
                            </items>
                        </ChoiceBox>
+                   </graphic>
+               </Menu>
+               <Menu mnemonicParsing="false" style="-fx-background-color: LIGHTGRAY;" text="">
+                   <graphic>
+                       <Button onAction="#clearBool" text="Eraser" />
                    </graphic>
                </Menu>
            </menus>
