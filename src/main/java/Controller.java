@@ -16,7 +16,6 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-import sun.plugin2.gluegen.runtime.CPU;
 
 import javax.imageio.ImageIO;
 import java.io.*;
@@ -37,8 +36,12 @@ public class Controller implements Initializable
     private Color color;
 
     private List<Canvas> canvasDict = new ArrayList<>();
+    private File savedFile;
 
-    private int brushSize, brushScale, units, imagesSize, canvasSize;
+    private int brushSize;
+    private int brushScale;
+    private int units;
+    private int canvasSize;
     private double scale, x, y;
 
     private boolean erase, saved;
@@ -68,6 +71,7 @@ public class Controller implements Initializable
         units = 20;
         canvasSize = 500;
         saved = false;
+        savedFile = null;
 
         canvasDict.add(canvasBackground);
         canvasDict.add(canvas);
@@ -135,7 +139,7 @@ public class Controller implements Initializable
             c.setWidth(canvasSize);
         }
 
-        imagesSize = (int) canvas.getHeight();
+        int imagesSize = (int) canvas.getHeight();
         brushSize = imagesSize / this.units;
 
         color = Color.BLACK;
@@ -248,6 +252,7 @@ public class Controller implements Initializable
 
     private void draw()
     {
+        lblInfo.setText("");
         layer.setFill(color);
         layer.fillRect(this.x, this.y, brushSize * brushScale, brushSize * brushScale);
     }
@@ -280,15 +285,34 @@ public class Controller implements Initializable
         Gson gson = new Gson();
         CanvasSave canvasSave = new CanvasSave();
 
-        FileChooser.ExtensionFilter filterPNG = new FileChooser.ExtensionFilter("Pixelart Tool files (*.pxt)", "*.PXT");
+        File file;
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save Image");
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Desktop"));
-        fileChooser.setInitialFileName("PixelArt.pxt");
-        fileChooser.getExtensionFilters().add(filterPNG);
-        fileChooser.setSelectedExtensionFilter(filterPNG);
-        File file = fileChooser.showSaveDialog(gp.getScene().getWindow());
+        if(!saved)
+        {
+            FileChooser.ExtensionFilter filterPNG = new FileChooser.ExtensionFilter("Pixelart Tool files (*.pxt)", "*.PXT");
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Image");
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Desktop"));
+            fileChooser.setInitialFileName("PixelArt.pxt");
+            fileChooser.getExtensionFilters().add(filterPNG);
+            fileChooser.setSelectedExtensionFilter(filterPNG);
+
+
+            setScale(1.0);
+
+            try
+            {
+                file = fileChooser.showSaveDialog(gp.getScene().getWindow());
+            }
+            catch (Exception e)
+            {
+                setScale(scale);
+                return;
+            }
+        }
+        else
+            file = savedFile;
 
 
         canvasSave.setFilename(file.getName());
@@ -298,8 +322,6 @@ public class Controller implements Initializable
         canvasSave.setScale(scale);
         canvasSave.setWinWidth(gp.getWidth());
         canvasSave.setWinHeight(gp.getHeight());
-
-        System.out.println(gp.getWidth() + " : " + gp.getHeight());
 
         ArrayList<String> dict = new ArrayList<>();
 
@@ -328,8 +350,14 @@ public class Controller implements Initializable
             writer.print(out);
             writer.close();
 
+            setScale(scale);
+            saved = true;
+            savedFile = file;
+
+
             lblInfo.setText("Saved " + file.getName());
         } catch (IOException e) {
+            setScale(scale);
             System.err.println("Failed to save as JSON!");
         }
     }
@@ -346,7 +374,17 @@ public class Controller implements Initializable
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Desktop"));
         fileChooser.getExtensionFilters().add(filterPNG);
         fileChooser.setSelectedExtensionFilter(filterPNG);
-        File file = fileChooser.showOpenDialog(gp.getScene().getWindow());
+        File file;
+
+        try
+        {
+            file = fileChooser.showOpenDialog(gp.getScene().getWindow());
+        }
+        catch (Exception e)
+        {
+            setScale(scale);
+            return;
+        }
 
         try {
             CanvasSave canvasSave = gson.fromJson(new FileReader(file), CanvasSave.class);
@@ -357,6 +395,7 @@ public class Controller implements Initializable
 
             // Clear Canvas
             newCanvas(canvasSave.getUnits(), canvasSave.getPixel(), canvasSave.getScale());
+            setScale(1.0);
             for(int h = 0; h < units; h ++)
             {
                 for (int w = 0; w < units; w++)
@@ -367,6 +406,7 @@ public class Controller implements Initializable
                 }
             }
 
+            setScale(canvasSave.getScale());
         } catch (FileNotFoundException e) {
             System.err.println("Failed Read!");
         }

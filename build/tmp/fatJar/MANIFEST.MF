@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Implementation-Title: Pixelart Tool V1.0
+Implementation-Version: 1.0-SNAPSHOT
+Main-Class: Main
+
