@@ -1,3 +1,5 @@
+import assets.CanvasSave;
+import com.google.gson.Gson;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -7,19 +9,19 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import sun.plugin2.gluegen.runtime.CPU;
 
 import javax.imageio.ImageIO;
-import java.io.File;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Created by Bastian Jarzombek on 14/11/2017.
@@ -39,7 +41,7 @@ public class Controller implements Initializable
     private int brushSize, brushScale, units, imagesSize, canvasSize;
     private double scale, x, y;
 
-    private boolean erase;
+    private boolean erase, saved;
 
 
     @FXML
@@ -63,8 +65,9 @@ public class Controller implements Initializable
     {
         scale = 1.0;
         brushScale = 1;
-        units = 40;
-        canvasSize = 1000;
+        units = 20;
+        canvasSize = 500;
+        saved = false;
 
         canvasDict.add(canvasBackground);
         canvasDict.add(canvas);
@@ -73,7 +76,7 @@ public class Controller implements Initializable
 
         brushBox.getSelectionModel().select(0);
 
-        newCanvas();
+        newCanvas(units, canvasSize, scale);
         setEvents();
     }
 
@@ -120,8 +123,12 @@ public class Controller implements Initializable
         });
     }
 
-    private void newCanvas()
+    private void newCanvas(int units, int pixel, double scale)
     {
+        this.units = units;
+        this.scale = scale;
+        this.canvasSize = pixel;
+
         for (Canvas c: canvasDict)
         {
             c.setHeight(canvasSize);
@@ -129,7 +136,7 @@ public class Controller implements Initializable
         }
 
         imagesSize = (int) canvas.getHeight();
-        brushSize = imagesSize / units;
+        brushSize = imagesSize / this.units;
 
         color = Color.BLACK;
         colorPicker.setValue(color);
@@ -139,9 +146,13 @@ public class Controller implements Initializable
         layerGrid = canvasGrid.getGraphicsContext2D();
         layerHover = canvasHover.getGraphicsContext2D();
 
+        layer.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
         wim = new WritableImage(imagesSize, imagesSize);
 
         canvasHover.toFront();
+
+        setScale(scale);
 
         drawGrid();
         drawBackground();
@@ -263,6 +274,103 @@ public class Controller implements Initializable
         layer.clearRect(this.x, this.y, brushSize * brushScale, brushSize * brushScale);
     }
 
+    @FXML
+    private void saveCanvas()
+    {
+        Gson gson = new Gson();
+        CanvasSave canvasSave = new CanvasSave();
+
+        FileChooser.ExtensionFilter filterPNG = new FileChooser.ExtensionFilter("Pixelart Tool files (*.pxt)", "*.PXT");
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Image");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Desktop"));
+        fileChooser.setInitialFileName("PixelArt.pxt");
+        fileChooser.getExtensionFilters().add(filterPNG);
+        fileChooser.setSelectedExtensionFilter(filterPNG);
+        File file = fileChooser.showSaveDialog(gp.getScene().getWindow());
+
+
+        canvasSave.setFilename(file.getName());
+        canvasSave.setPath(file.getPath());
+        canvasSave.setPixel(canvasSize);
+        canvasSave.setUnits(units);
+        canvasSave.setScale(scale);
+        canvasSave.setWinWidth(gp.getWidth());
+        canvasSave.setWinHeight(gp.getHeight());
+
+        System.out.println(gp.getWidth() + " : " + gp.getHeight());
+
+        ArrayList<String> dict = new ArrayList<>();
+
+
+        SnapshotParameters sp = new SnapshotParameters();
+        sp.setFill(Color.TRANSPARENT);
+        canvas.snapshot(sp, wim);
+
+        PixelReader pr = wim.getPixelReader();
+
+        for(int h = 0; h < units; h ++)
+        {
+            for (int w = 0; w < units; w++)
+            {
+                Color color = pr.getColor(w*brushSize+5, h*brushSize+5);
+
+                dict.add(color.toString());
+            }
+        }
+        canvasSave.setCanvas(dict);
+
+        try {
+            String out = gson.toJson(canvasSave);
+
+            PrintWriter writer = new PrintWriter(file, "UTF-8");
+            writer.print(out);
+            writer.close();
+
+            lblInfo.setText("Saved " + file.getName());
+        } catch (IOException e) {
+            System.err.println("Failed to save as JSON!");
+        }
+    }
+
+    @FXML
+    private void getSavedCanvas()
+    {
+        Gson gson = new Gson();
+
+        FileChooser.ExtensionFilter filterPNG = new FileChooser.ExtensionFilter("Pixelart Tool files (*.pxt)", "*.PXT");
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Pixelart");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/Desktop"));
+        fileChooser.getExtensionFilters().add(filterPNG);
+        fileChooser.setSelectedExtensionFilter(filterPNG);
+        File file = fileChooser.showOpenDialog(gp.getScene().getWindow());
+
+        try {
+            CanvasSave canvasSave = gson.fromJson(new FileReader(file), CanvasSave.class);
+            lblInfo.setText("Opened " + canvasSave.getFilename());
+
+            ArrayList<String> colors = canvasSave.getCanvas();
+            int i = 0;
+
+            // Clear Canvas
+            newCanvas(canvasSave.getUnits(), canvasSave.getPixel(), canvasSave.getScale());
+            for(int h = 0; h < units; h ++)
+            {
+                for (int w = 0; w < units; w++)
+                {
+                    layer.setFill(Color.valueOf(colors.get(i)));
+                    layer.fillRect(w*brushSize, h*brushSize, brushSize, brushSize);
+                    i++;
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            System.err.println("Failed Read!");
+        }
+    }
 
     @FXML
     private void saveImage()
@@ -316,6 +424,13 @@ public class Controller implements Initializable
         else
             lblMode.setText("Mode: Draw");
     }
+
+    @FXML
+    public void newFile()
+    {
+        newCanvas(units, canvasSize, scale);
+    }
+
 
 
     @FXML
