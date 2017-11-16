@@ -1,3 +1,3 @@
 # Pixelart-Tool
 
-Download V1.0 [Pixelart Tool V1.0](Pixelart Tool V1.0.jar)
+[Download Pixelart Tool V1.0](Pixelart_Tool_V1.0.jar)
