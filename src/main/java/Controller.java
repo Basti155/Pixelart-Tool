@@ -23,21 +23,23 @@ import java.util.ResourceBundle;
 
 /**
  * Created by Bastian Jarzombek on 14/11/2017.
+ * Project Pixelart Tool
  */
 public class Controller implements Initializable
 {
+    //TODO Make Subclasses!
+
     private GraphicsContext layer,layerGrid, layerHover, layerBackground;
+
     private WritableImage wim;
     private Color color;
 
     private List<Canvas> canvasDict = new ArrayList<>();
 
-    private int brushSize;
-    private int brushScale;
+    private int brushSize, brushScale, units, imagesSize, canvasSize;
     private double scale, x, y;
 
     private boolean erase;
-
 
 
     @FXML
@@ -50,10 +52,10 @@ public class Controller implements Initializable
     private ColorPicker colorPicker;
 
     @FXML
-    private Label lblScale, lblInfo;
+    private Label lblScale, lblInfo, lblMode;
 
     @FXML
-    private ChoiceBox<String> brush;
+    private ChoiceBox<String> brushBox;
 
 
 
@@ -61,13 +63,15 @@ public class Controller implements Initializable
     {
         scale = 1.0;
         brushScale = 1;
+        units = 40;
+        canvasSize = 1000;
 
         canvasDict.add(canvasBackground);
         canvasDict.add(canvas);
         canvasDict.add(canvasGrid);
         canvasDict.add(canvasHover);
 
-        brush.getSelectionModel().select(0);
+        brushBox.getSelectionModel().select(0);
 
         newCanvas();
         setEvents();
@@ -75,49 +79,57 @@ public class Controller implements Initializable
 
     private void setEvents()
     {
-        brush.getSelectionModel().selectedIndexProperty().addListener(
+        brushBox.getSelectionModel().selectedIndexProperty().addListener(
                 (observable, oldValue, newValue) -> brushScale = (int)newValue  + 1);
 
                 canvasHover.addEventHandler(MouseEvent.MOUSE_MOVED, e -> drawBrush(e.getX(), e.getY()));
 
         canvasHover.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
-            layer.setFill(color);
-            layer.fillRect(x, y, brushSize * brushScale, brushSize * brushScale);
+            if(!erase)
+                draw();
+            else
+                clear(e.getX(), e.getY());
         });
 
         canvasHover.addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
             drawBrush(e.getX(), e.getY());
 
             if(!erase)
-                draw(e.getX(), e.getY());
+                drawMove(e.getX(), e.getY());
             else
                 clear(e.getX(), e.getY());
         });
 
         canvasHover.addEventHandler(ScrollEvent.SCROLL, e -> {
-            if(scale >= 0.5 && scale <= 1.5)
+            if(scale >= 0.2 && scale <= 1.5)
             {
                 if(e.getDeltaY() > 3)
-                    scale += 0.1;
+                    scale += 0.05;
                 else
-                    scale -= 0.1;
+                    scale -= 0.05;
 
                 setScale(scale);
             }
             else
             {
-                if(scale <= 0.5)
-                    scale += 0.1;
+                if(scale <= 0.2)
+                    scale += 0.05;
                 else
-                    scale -= 0.1;
+                    scale -= 0.05;
             }
         });
     }
 
     private void newCanvas()
     {
-        int imagesSize = (int) canvas.getHeight();
-        brushSize = imagesSize / 20;
+        for (Canvas c: canvasDict)
+        {
+            c.setHeight(canvasSize);
+            c.setWidth(canvasSize);
+        }
+
+        imagesSize = (int) canvas.getHeight();
+        brushSize = imagesSize / units;
 
         color = Color.BLACK;
         colorPicker.setValue(color);
@@ -137,18 +149,17 @@ public class Controller implements Initializable
 
     private void drawBackground()
     {
-        double w, h;
-        w = canvasBackground.getWidth() / 20;
-        h = canvasBackground.getHeight() / 20;
-
-        for(int x = 0; x < h; x++)
+        for(int x = 0; x <= units; x++)
         {
-            for (int y = 0; y < w; y++)
+            for (int y = 0; y <= units; y++)
             {
                 if ((y % 2) == 0)
                     layerBackground.setFill(Color.GREY);
                 else
                     layerBackground.setFill(Color.LIGHTGREY);
+
+                x = Math.round(x * 100) / 100;
+                y = Math.round(y * 100) / 100;
 
                 layerBackground.fillRect(x * brushSize, y * brushSize, brushSize, brushSize);
             }
@@ -159,23 +170,25 @@ public class Controller implements Initializable
     private void drawGrid()
     {
         double w, h;
-        w = canvasGrid.getWidth() / 20;
-        h = canvasGrid.getHeight() / 20;
+        w = canvasGrid.getWidth() / units;
+        h = canvasGrid.getHeight() / units;
 
         layerGrid.setFill(Color.LIGHTGRAY);
 
         double x1, y1;
 
-        for(int i = 0; i < w; i++)
+        for(int i = 0; i <= units; i++)
         {
             x1 = w * i;
+            x1 = Math.round(x1 * 100) / 100;
 
             layerGrid.strokeLine(x1, 0, x1, canvasGrid.getHeight());
         }
 
-        for(int i = 0; i < w; i++)
+        for(int i = 0; i <= units; i++)
         {
             y1 = h * i;
+            y1 = Math.round(y1 * 100) / 100;
 
             layerGrid.strokeLine(0, y1, canvasGrid.getWidth(), y1);
         }
@@ -196,10 +209,8 @@ public class Controller implements Initializable
         lblScale.setText("Scale: " + scale);
     }
 
-
     private void drawBrush(double x, double y)
     {
-        layerHover.setFill(Color.WHITE);
         layerHover.clearRect(0, 0, canvasHover.getWidth(), canvasHover.getHeight());
 
         this.x = ((x - (brushSize / 2) * brushScale) / brushSize);
@@ -208,7 +219,11 @@ public class Controller implements Initializable
         this.y = ((y - (brushSize / 2) * brushScale) / brushSize);
         this.y = ((double) Math.round(this.y * 1) / 1) * brushSize;
 
-        layerHover.setFill(color);
+        if(!erase)
+            layerHover.setFill(color);
+        else
+            layerHover.setFill(Color.WHITE);
+
         layerHover.fillRect(this.x, this.y, brushSize * brushScale, brushSize * brushScale);
 
 
@@ -220,7 +235,13 @@ public class Controller implements Initializable
         layerHover.strokeRect(this.x, this.y, brushSize * brushScale, brushSize * brushScale);
     }
 
-    private void draw(double x, double y)
+    private void draw()
+    {
+        layer.setFill(color);
+        layer.fillRect(this.x, this.y, brushSize * brushScale, brushSize * brushScale);
+    }
+
+    private void drawMove(double x, double y)
     {
         this.x = ((x -(brushSize/2)*brushScale) / brushSize);
         this.x = ((double)Math.round(this.x * 1) / 1) * brushSize;
@@ -228,8 +249,7 @@ public class Controller implements Initializable
         this.y = ((y -(brushSize/2)*brushScale) / brushSize);
         this.y = ((double)Math.round(this.y * 1) / 1) * brushSize;
 
-        layer.setFill(color);
-        layer.fillRect(this.x, this.y, brushSize * brushScale, brushSize * brushScale);
+        draw();
     }
 
     private void clear(double x, double y)
@@ -290,6 +310,11 @@ public class Controller implements Initializable
     private void clearBool()
     {
         erase = !erase;
+
+        if(erase)
+            lblMode.setText("Mode: Erase");
+        else
+            lblMode.setText("Mode: Draw");
     }
 
 

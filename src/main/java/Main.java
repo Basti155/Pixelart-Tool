@@ -6,6 +6,7 @@ import javafx.stage.Stage;
 
 /**
  * Created by Bastian Jarzombek on 14/11/2017.
+ * Project Pixelart Tool
  */
 public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {

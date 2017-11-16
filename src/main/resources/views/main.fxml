@@ -68,7 +68,7 @@
                </Menu>
                <Menu mnemonicParsing="false" style="-fx-background-color: LIGHTGRAY;" text="">
                    <graphic>
-                       <ChoiceBox fx:id="brush" maxWidth="90.0">
+                       <ChoiceBox fx:id="brushBox" maxWidth="90.0">
                            <items>
                                <FXCollections fx:factory="observableArrayList">
                                    <String fx:value="1x1" />
@@ -82,6 +82,11 @@
                <Menu mnemonicParsing="false" style="-fx-background-color: LIGHTGRAY;" text="">
                    <graphic>
                        <Button onAction="#clearBool" text="Eraser" />
+                   </graphic>
+               </Menu>
+               <Menu mnemonicParsing="false">
+                   <graphic>
+                       <Label fx:id="lblMode" text="Mode: Draw" />
                    </graphic>
                </Menu>
            </menus>
